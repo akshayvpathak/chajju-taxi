@@ -1,8 +1,8 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable operator-linebreak */
+/* eslint-disable import/prefer-default-export */
 /* eslint-disable no-use-before-define */
-exports.GetDistance = (lat1, long1, lat2, long2) =>
-  FindDistance(lat1, long1, lat2, long2);
+export function GetDistance(lat1, long1, lat2, long2) {
+  return FindDistance(lat1, long1, lat2, long2);
+}
 
 function FindDistance(lat1, long1, lat2, long2) {
   const R = 6378137;

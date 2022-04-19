@@ -1,10 +1,9 @@
 /* eslint-disable operator-linebreak */
 exports.directory = `${__dirname}/../`;
-exports.whitelist = process.env.WHITELIST;
-exports.mongodbURL = process.env.CONNECTION_URL;
-exports.jwtUserSecretKey = process.env.JWT_SECRET_KEY;
-exports.jwtForgotPasswordSecretKey = process.env.JWT_SECRET_KEY;
-exports.jwtTokenSecretKey = process.env.JWT_SECRET_KEY;
-exports.jwtConfirmRegistrationSecretKey =
-    process.env.JWT_SECRET_KEY;
+exports.whitelist = ['http://localhost:3000/', 'localhost:5000'];
+exports.mongodbURL = "mongodb+srv://akshay:akshay4every1@cluster0.vv2x5.mongodb.net/chajju-taxi";
+exports.jwtUserSecretKey = "uAsBw6WxqD";
+exports.jwtForgotPasswordSecretKey = "uAsBw6WxqD";
+exports.jwtTokenSecretKey = "uAsBw6WxqD";
+exports.jwtConfirmRegistrationSecretKey = "uAsBw6WxqD";
 exports.oAuthRefreshToken = process.env.OAUTH_REFRESH_TOKEN;

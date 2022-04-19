@@ -1,19 +1,4 @@
 const nodemailer = require('nodemailer');
-const { google } = require('googleapis');
-
-const { oAuthRefreshToken } = absoluteRequire('config');
-
-const { OAuth2 } = google.auth;
-
-const oauth2Client = new OAuth2(
-    '11348128340-furl38l7929c2f1v539poe8dr114gfgp.apps.googleusercontent.com', // ClientID
-    '5JC-eJjShz21mQm3oRwZaRRn', // Client Secret
-    'https://developers.google.com/oauthplayground' // Redirect URL
-);
-oauth2Client.setCredentials({
-    refresh_token: oAuthRefreshToken,
-});
-const accessToken = oauth2Client.getAccessToken();
 
 exports.sentOTPVerificaiton = (message) => {
     /* const transporter = nodemailer.createTransport({

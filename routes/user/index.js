@@ -7,6 +7,7 @@ const { corsWithOptions } = absoluteRequire('modules/cors');
 const {
   SignUp,
   LogIn,
+  verifyUser
 } = absoluteRequire('controller/User');
 
 const router = Router();
@@ -28,5 +29,6 @@ router.route('/signup').post(corsWithOptions,
   }
   , SignUp);
 router.route('/login').post(corsWithOptions, LogIn);
+router.route('/verifyUser').post(corsWithOptions, verifyUser);
 
 module.exports = router;

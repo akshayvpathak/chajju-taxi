@@ -1,7 +1,9 @@
 
 const {
     RegisterUser,
-    verifyUserWithOtp
+    verifyUserWithOtp,
+    getUser,
+    updateUser
 } = absoluteRequire('repositories/Users');
 
 const {
@@ -16,6 +18,13 @@ exports.LogIn = (req, res, next) => {
 };
 exports.verifyUser = (req, res, next) => {
     verifyUser(req, res, next);
+};
+exports.getUserInfo = (req, res, next) => {
+    getUserInfo(req, res, next);
+};
+
+exports.updateUserInfo = (req, res, next) => {
+    updateUserInfo(req, res, next);
 };
 async function SignUp(req, res, next) {
 
@@ -53,4 +62,34 @@ async function verifyUser(req, res, next) {
 }
 async function LogIn(req, res, next) {
     verifyUserLogin(req, res);
+}
+async function getUserInfo(req, res) {
+    try {
+        console.log("USER INFO ", req.user);
+        const { id } = req.params;
+        let response = await getUser(id);
+
+        res.status(200).json({
+            message: "Successfully found the user.",
+            data: response
+        })
+
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function updateUserInfo(req, res, next) {
+    try {
+
+        await updateUser(req.body, req.params.id);
+
+        res.status(200).json({
+            message: "Successfully updated the user.",
+
+        })
+
+    } catch (err) {
+        throw err;
+    }
 }

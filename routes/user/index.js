@@ -1,13 +1,15 @@
 const { Router } = require('express');
 const bodyParser = require('body-parser');
 const { body, validationResult } = require('express-validator');
-
+const { verifyUserFromToken, verifyAdmin } = absoluteRequire('controller/Auth');
 
 const { corsWithOptions } = absoluteRequire('modules/cors');
 const {
   SignUp,
   LogIn,
-  verifyUser
+  verifyUser,
+  getUserInfo,
+  updateUserInfo
 } = absoluteRequire('controller/User');
 
 const router = Router();
@@ -30,5 +32,7 @@ router.route('/signup').post(corsWithOptions,
   , SignUp);
 router.route('/login').post(corsWithOptions, LogIn);
 router.route('/verifyUser').post(corsWithOptions, verifyUser);
+router.route('/user/:id').get(corsWithOptions, verifyUserFromToken, getUserInfo);
+router.route('/user/:id').post(corsWithOptions, verifyUserFromToken, updateUserInfo);
 
 module.exports = router;

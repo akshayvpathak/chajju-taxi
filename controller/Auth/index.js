@@ -74,7 +74,7 @@ exports.jwtPassport = passport.use(
     })
 );
 
-exports.verifyUser = passport.authenticate('user_strategy', {
+exports.verifyUserFromToken = passport.authenticate('user_strategy', {
     session: false,
 });
 exports.verifyUserEmailRegistration = (req, res, next) => {

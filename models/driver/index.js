@@ -40,7 +40,8 @@ const driverSchema = new Schema({
 
     },
     document_id: {
-        type: Object,
+        type: Schema.Types.ObjectId,
+        ref: 'Document'
 
     },
     fcm_token: {
@@ -58,6 +59,7 @@ const driverSchema = new Schema({
 });
 
 // passport local mongoose plugin
+driverSchema.plugin(passportLocalMongoose, { usernameField: 'email_id' });
 driverSchema.plugin(mongoosePaginate);
 
 const Driver = mongoose.model('Driver', driverSchema);

@@ -39,6 +39,6 @@ const documentSchema = new Schema({
 
 documentSchema.plugin(mongoosePaginate);
 
-const Document = mongoose.model('Document', documentSchema);
+const Document = mongoose.model('Document', documentSchema, 'document');
 
 module.exports = Document;

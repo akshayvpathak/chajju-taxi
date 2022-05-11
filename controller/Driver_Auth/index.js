@@ -13,7 +13,7 @@ const {
     jwtTokenSecretKey,
     jwtForgotPasswordSecretKey,
 } = absoluteRequire('config');
-const User = absoluteRequire('models/user');
+const User = absoluteRequire('models/driver');
 
 exports.local = passport.use(
     new LocalStrategy(
@@ -143,29 +143,9 @@ exports.verifyUserRegistration = (req, res) => {
     });
 };
 
-exports.verifyUserLogin = (req, res) => {
-    passport.authenticate('local')(req, res, () => {
-        if (req.user.is_verified) {
-            const token = exports.getToken({ _id: req.user._id });
-            const refreshtoken = exports.getRefreshToken({ _id: req.user._id });
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.json({ success: true, token, refreshtoken });
-        } else {
-            res.statusCode = 401;
-            res.setHeader('Content-Type', 'application/json');
-            res.json({
-                success: false,
-                message: 'User is not verified',
-            });
-        }
-    });
-};
 exports.verifyDriverLogin = (req, res) => {
-    console.log("CHECKK ");
     passport.authenticate('local')(req, res, () => {
-
-        if (req.user.status && req.user.status == 'verified') {
+        if (req.user.status && req.user.status === 'verified') {
             const token = exports.getToken({ _id: req.user._id });
             const refreshtoken = exports.getRefreshToken({ _id: req.user._id });
             res.statusCode = 200;
@@ -176,11 +156,12 @@ exports.verifyDriverLogin = (req, res) => {
             res.setHeader('Content-Type', 'application/json');
             res.json({
                 success: false,
-                message: 'Driver is not verified',
+                message: 'You are not verified or blocked. Please contact the administrator.',
             });
         }
     });
 };
+
 
 
 opts = {};

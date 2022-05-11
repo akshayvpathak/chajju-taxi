@@ -4,7 +4,7 @@ const {
     getDriver,
     getAllDrivers,
     verifyDriverStatus
-} = absoluteRequire('repositories/Driver');
+} = absoluteRequire('repositories/driver');
 const {
     verifyDriverLogin,
 } = absoluteRequire('controller/Driver_Auth');

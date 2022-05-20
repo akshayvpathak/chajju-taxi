@@ -12,7 +12,10 @@ const {
     driverLogin,
     getDriverInfo,
     allDrivers,
-    updateDriverStatus
+    updateDriverStatus,
+    addDriverVehicle,
+    driverDelete,
+    vehicleDelete
 
 } = absoluteRequire('controller/Driver');
 
@@ -39,11 +42,15 @@ router.route('/driverSignup').post(corsWithOptions,
         }
     }
     , SignUpDriver);
+router.route('/driverUpdate').post(corsWithOptions, SignUpDriver);
 
-
-router.route('/driverDocumentsUpload').post(driverDocumentsUpload);
+router.route('/driverDocumentsUpload').post(corsWithOptions, driverDocumentsUpload);
 router.route('/login').post(corsWithOptions, driverLogin);
 router.route('/all').get(corsWithOptions, allDrivers);
 router.route('/:id').get(corsWithOptions, getDriverInfo);
 router.route('/changeDriverStatus/:driverId').post(corsWithOptions, updateDriverStatus);
+router.route('/addDriverVehicle').post(corsWithOptions, addDriverVehicle);
+router.route('/:driverId').delete(corsWithOptions, driverDelete);
+router.route('/deleteVehicle/:vehicleId').delete(corsWithOptions, vehicleDelete);
+
 module.exports = router;

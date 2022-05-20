@@ -6,6 +6,10 @@ const LocalStrategy = require('passport-local').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
 const { ExtractJwt } = require('passport-jwt');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
+const axios = require('axios')
+require('dotenv').config()
+
 
 const {
     jwtUserSecretKey,
@@ -127,7 +131,38 @@ exports.jwtPassport = passport.use(
     })
 );
 
+// exports.googleAuthCheck = async (socialToken, device_type) => {
+//     if (device_type === 'android') {
+//         const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID_ANDROID);
+//         client.verifyIdToken({
+//             idToken: socialToken,
+//             audience: process.env.GOOGLE_CLIENT_ID_ANDROID,
+//         })
+//             .then(ticket => {
+//                 // callback(ticket.payload, null)
+//                 return ticket.payload;
+//             })
+//             .catch(err => {
+//                 console.log('++', err)
+//                 callback(null, err)
+//             })
+//     }
+//     // else if (device_type === 'ios') {
+//     //     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID_IOS);
+//     //     client.verifyIdToken({
+//     //         idToken: socialToken,
+//     //         audience: process.env.GOOGLE_CLIENT_ID_IOS,
+//     //     })
+//     //         .then(ticket => {
+//     //             callback(ticket.payload, null)
+//     //         })
+//     //         .catch(err => {
+//     //             console.log('++', err)
+//     //             callback(null, err)
+//     //         })
+//     // }
 
+// }
 exports.verifyEmail = passport.authenticate('confirm_user', {
     session: false,
 });

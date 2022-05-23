@@ -80,7 +80,7 @@ async function driverDocumentsUpload(req, res, next) {
     try {
         let cloudinary = await initializeCloudinary();
         let documents = {};
-        if (req.files.driving_licence) {
+        if (req.files && req.files.driving_licence) {
             let fileInfo = req.files.driving_licence.mimetype.split('/');
             let extension = fileInfo[1];
             let timestamp = new Date().toISOString().replace(/[-:.]/g, "");
@@ -120,7 +120,7 @@ async function driverDocumentsUpload(req, res, next) {
             console.log(result.url);
             documents.driving_licence = result.url;
         }
-        if (req.files.vehicle_insurance) {
+        if (req.files && req.files.vehicle_insurance) {
             let fileInfo = req.files.vehicle_insurance.mimetype.split('/');
             let extension = fileInfo[1];
             let timestamp = new Date().toISOString().replace(/[-:.]/g, "");
@@ -155,7 +155,7 @@ async function driverDocumentsUpload(req, res, next) {
 
             documents.vehicle_insurance = result.url;
         }
-        if (req.files.aadhar_card) {
+        if (req.files && req.files.aadhar_card) {
             let fileInfo = req.files.aadhar_card.mimetype.split('/');
             let extension = fileInfo[1];
             let timestamp = new Date().toISOString().replace(/[-:.]/g, "");
@@ -186,11 +186,11 @@ async function driverDocumentsUpload(req, res, next) {
             };
 
             let result = await uploadFromBuffer(req.files.driving_licence.data);
-            console.log(result.url);
+
 
             documents.aadhar_card = result.url;
         }
-        if (req.files.pan_card) {
+        if (req.files && req.files.pan_card) {
             let fileInfo = req.files.pan_card.mimetype.split('/');
             let extension = fileInfo[1];
             let timestamp = new Date().toISOString().replace(/[-:.]/g, "");
@@ -227,7 +227,7 @@ async function driverDocumentsUpload(req, res, next) {
             };
 
             let result = await uploadFromBuffer(req.files.driving_licence.data);
-            console.log(result.url);
+
 
             documents.pan_card = result.url;
 

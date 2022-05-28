@@ -289,7 +289,7 @@ async function deleteVehicle(vehicleId) {
 }
 async function otpSend(phone) {
     try {
-
+        console.log(phone);
         var otp = Math.floor(1000 + Math.random() * 9000);
         var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
 
@@ -300,7 +300,7 @@ async function otpSend(phone) {
         req.form({
             "variables_values": otp,
             "route": "otp",
-            "numbers": "8320782297",
+            "numbers": phone,
         });
 
         req.end(function (res) {

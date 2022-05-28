@@ -10,10 +10,18 @@ const {
     DriverUpdate,
     deleteDriver,
     deleteVehicle,
-    documentUpdate
+    documentUpdate,
+    getDriverByEmail,
+    otpSend,
+    verifyOtp,
+    registerLoginGoogle,
+    getDriverByPhone,
+    insertBankDetails
 } = absoluteRequire('repositories/driver');
 const {
     verifyDriverLogin,
+    verifyDriverGoogleLogin,
+    verifyDriverwithManualMobileLogin
 } = absoluteRequire('controller/Driver_Auth');
 const {
     initializeCloudinary,
@@ -50,7 +58,29 @@ exports.driverDelete = (req, res, next) => {
 exports.vehicleDelete = (req, res, next) => {
     vehicleDelete(req, res, next);
 };
+exports.checkDriverExist = (req, res, next) => {
+    checkDriverExist(req, res, next);
+};
+exports.globalImageUpload = (req, res, next) => {
+    globalImageUpload(req, res, next);
+};
+exports.sendOtp = (req, res, next) => {
+    sendOtp(req, res, next);
+};
+exports.otpVerify = (req, res, next) => {
+    otpVerify(req, res, next);
+};
+exports.socialLoginRegister = (req, res, next) => {
+    socialLoginRegister(req, res, next);
+};
+
+exports.driverMobileRegister = (req, res, next) => {
+    driverMobileRegister(req, res, next);
+};
+
+
 const fs = require('fs');
+
 
 async function SignUpDriver(req, res, next) {
     try {
@@ -265,6 +295,144 @@ async function driverDocumentsUpload(req, res, next) {
         next(err);
     }
 }
+
+async function socialLoginRegister(req, res, next) {
+    try {
+        if (!req.body.email || req.body.email === '') {
+            res.status(400).json({
+                status: 400,
+                message: "Email is mandatory",
+            });
+        }
+        let driverInfo = await getDriverByEmail(req.body.email);
+        if (driverInfo) {
+            let token = await verifyDriverGoogleLogin(driverInfo);
+
+            if (token) {
+
+                res.status(200).json({
+                    status: 200,
+                    token: token,
+                    message: "found the driver.",
+                    data: driverInfo
+
+                });
+            }
+            else {
+
+                res.status(400).json({
+                    status: 400,
+                    message: "Driver is not register with gmail",
+                });
+            }
+        }
+        else {
+            console.log('controler check');
+            await registerLoginGoogle(req.body).then(async (val) => {
+
+                if (req.body.upi_id || req.body.account_holder || req.body.ifsc_code) {
+                    await insertBankDetails(req.body).then(async (bankDetals) => {
+                        let token = await verifyDriverGoogleLogin(bankDetals);
+                        if (token) {
+                            res.status(200).json({
+                                status: 200,
+                                token: token,
+                                message: "Successfully created the driver.",
+                                data: bankDetals
+
+                            });
+                        }
+                        else {
+
+                            res.status(400).json({
+                                status: 400,
+                                message: "Driver is not register with gmail",
+                            });
+                        }
+
+                    });
+                }
+                else {
+                    let token = await verifyDriverGoogleLogin(val);
+                    res.status(200).json({
+                        message: "Successfully created the driver.",
+                        token: token,
+                        data: val
+
+                    });
+                }
+
+            }).catch(err => {
+                console.log(err);
+            });
+
+
+
+
+
+        }
+    } catch (err) {
+        next(err);
+    }
+}
+async function driverMobileRegister(req, res, next) {
+    try {
+        //this is if registering manually without google.
+        if (!req.body.email || req.body.email === '') {
+            res.status(400).json({
+                status: 400,
+                message: "Email is mandatory",
+            });
+        }
+        let driverInfo = await getDriverByEmail(req.body.email);
+        if (driverInfo) {
+            let token = await verifyDriverwithManualMobileLogin(driverInfo);
+            if (token) {
+
+                res.status(200).json({
+                    status: 200,
+                    token: token,
+                    message: "found the driver.",
+                    data: driverInfo
+
+                });
+            }
+        }
+        else {
+            await registerLoginGoogle(req.body).then(async (val) => {
+
+                if (req.body.upi_id || req.body.account_holder || req.body.ifsc_code) {
+                    await insertBankDetails(req.body).then(async (bankDetals) => {
+                        let token = await verifyDriverwithManualMobileLogin(bankDetals);
+                        if (token) {
+                            res.status(200).json({
+                                status: 200,
+                                token: token,
+                                message: "Successfully created the driver.",
+                                data: bankDetals
+
+                            });
+                        }
+                    });
+                }
+                else {
+                    let token = await verifyDriverwithManualMobileLogin(val);
+                    res.status(200).json({
+                        message: "Successfully created the driver.",
+                        token: token,
+                        data: val
+
+                    });
+                }
+
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+    } catch (err) {
+        next(err);
+    }
+}
 async function driverDelete(req, res, next) {
     try {
         const { driverId } = req.params;
@@ -316,6 +484,78 @@ async function getDriverInfo(req, res) {
     }
 }
 
+async function checkDriverExist(req, res, next) {
+    try {
+
+        let response;
+        if (req.query.phone) {
+            response = await getDriverByPhone(req.query.phone);
+        }
+        if (req.query.email_id) {
+            response = await getDriverByEmail(req.query.email_id);
+        }
+        if (response) {
+            res.status(200).json({
+                message: "Driver Successfully Found",
+                driverExist: true
+            })
+        } else {
+            res.status(200).json({
+                message: "Driver Not Found",
+                driverExist: false
+            });
+
+        }
+
+    } catch (err) {
+        next(err)
+    }
+}
+async function globalImageUpload(req, res, next) {
+    try {
+        let images = [];
+        let cloudinary = await initializeCloudinary();
+        for (let img of req.files.image) {
+            let uploadFromBuffer = (buffer) => {
+
+                return new Promise((resolve, reject) => {
+
+                    let cld_upload_stream = cloudinary.uploader.upload_stream(
+                        {
+                            folder: "driver_doc"
+                        },
+                        (error, result) => {
+
+                            if (result) {
+                                resolve(result);
+                            } else {
+                                console.log(error);
+                                reject(error);
+                            }
+                        }
+                    );
+
+                    streamifier.createReadStream(buffer).pipe(cld_upload_stream);
+                });
+
+            };
+
+            let result = await uploadFromBuffer(img.data);
+            images.push(result.url);
+            console.log(result);
+        }
+
+
+
+        res.status(200).json({
+            message: "Successfully Uploaded the images.",
+            data: images
+        })
+    } catch (err) {
+        next(err);
+    }
+}
+
 async function allDrivers(req, res) {
     try {
 
@@ -326,6 +566,35 @@ async function allDrivers(req, res) {
             data: response
         })
 
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function sendOtp(req, res) {
+    try {
+        await otpSend(req.query.phone);
+        res.status(200).json({
+            message: "Otp sent successfully",
+
+        })
+    } catch (err) {
+        next(err);
+    }
+}
+async function otpVerify(req, res) {
+    try {
+        let otpInfo = await verifyOtp(req.body);
+        if (otpInfo) {
+            res.status(200).json({
+                otp_valid: true
+            })
+        }
+        else {
+            res.status(200).json({
+                otp_valid: false
+            })
+        }
     } catch (err) {
         next(err);
     }

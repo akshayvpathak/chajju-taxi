@@ -1,6 +1,10 @@
 const Driver = absoluteRequire('models/driver');
 const Vehicle = absoluteRequire('models/vehicle');
 const Document = absoluteRequire('models/document');
+const Otp = absoluteRequire('models/otp');
+const BankDetails = absoluteRequire('models/bank_account_details');
+
+const unirest = require("unirest");
 const ObjectId = require('mongodb').ObjectID;
 exports.RegisterDriver = (userfields, password) =>
     RegisterDriver(userfields, password);
@@ -24,6 +28,18 @@ exports.deleteVehicle = (vehicleId) =>
 
 exports.documentUpdate = (documents, documnetId) =>
     documentUpdate(documents, documnetId);
+exports.getDriverByEmail = (emailId) =>
+    getDriverByEmail(emailId);
+exports.getDriverByPhone = (phone) =>
+    getDriverByPhone(phone);
+exports.otpSend = (phone) =>
+    otpSend(phone);
+exports.verifyOtp = (data) =>
+    verifyOtp(data);
+exports.registerLoginGoogle = (data) =>
+    registerLoginGoogle(data);
+exports.insertBankDetails = (data) =>
+    insertBankDetails(data);
 async function RegisterDriver(driverfields, password) {
     try {
         driverfields.status = 'pending';
@@ -137,6 +153,43 @@ async function documentUpdate(documents, documnetId) {
         return err;
     }
 }
+async function getDriverByEmail(emailId) {
+    try {
+
+        let userInfo = await Driver.findOne({ email_id: emailId }).populate({
+            path: "document_id"
+        }).populate({
+            path: "bank_ac_id"
+        })
+            .then(driverInfo => {
+                return driverInfo;
+            })
+            .catch(err => {
+                console.log(err);
+            });
+
+        return userInfo
+    } catch (err) {
+        return err;
+    }
+}
+async function getDriverByPhone(phone) {
+    try {
+
+        let userInfo = await Driver.findOne({ phone: phone }).populate({
+            path: "document_id"
+        })
+            .then(driverInfo => {
+                return driverInfo;
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        return userInfo
+    } catch (err) {
+        return err;
+    }
+}
 async function getDriver(driverId) {
     try {
 
@@ -230,6 +283,159 @@ async function deleteVehicle(vehicleId) {
 
         });
         return;
+    } catch (err) {
+        return err;
+    }
+}
+async function otpSend(phone) {
+    try {
+
+        var otp = Math.floor(1000 + Math.random() * 9000);
+        var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
+
+        req.headers({
+            "authorization": "NDVghc49iZKbldXzv2HTa8GtqnjIBYWA10CPSOekJr7EuowpM6G4S9pMuJgC7FPEi80ydLbjqDRVoKYw"
+        });
+
+        req.form({
+            "variables_values": otp,
+            "route": "otp",
+            "numbers": "8320782297",
+        });
+
+        req.end(function (res) {
+            if (res.error) {
+                console.log(res.error);
+            }
+
+            console.log(res.body);
+        });
+        let otpData = {
+            phone: phone,
+            otp: otp
+        };
+
+        const otpInfo = await Otp.create(otpData, async (err, res) => {
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            return res.id;
+        });
+
+
+
+        return;
+    } catch (err) {
+        console.log(err);
+        return err;
+    }
+}
+async function verifyOtp(data) {
+    try {
+        console.log(data);
+        let otpInfo = await Otp.findOne({ phone: data.phone, otp: data.otp });;
+
+        return otpInfo;
+
+    } catch (err) {
+        return err;
+    }
+}
+
+async function registerLoginGoogle(data) {
+    try {
+        console.log('check ', data);
+        let driverData = {};
+        let documentData = {};
+        let bankAc = {};
+        if (data.name) {
+            driverData.name = data.name;
+        }
+        if (data.email) {
+            driverData.email_id = data.email;
+        }
+        if (data.phone) {
+            driverData.phone = data.phone;
+        }
+        if (data.token_id) {
+            driverData.google_id = data.token_id;
+        }
+        if (data.pan_no) {
+            documentData.pan_card_number = data.pan_no;
+        }
+        if (data.aadhar_no) {
+            documentData.aadhar_number = data.aadhar_no;
+        }
+
+        if (data.aadhar_link) {
+            documentData.aadhar_card = data.aadhar_link;
+        }
+
+        return new Promise(async (resolve, reject) => {
+            await Document.create(documentData, async function (err, doc) {
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+                driverData.document_id = doc.id;
+                await Driver.create(driverData, async function (err, res) {
+                    if (err) {
+                        console.log(err);
+                        throw err;
+                    }
+                    console.log("1 record inserted");
+                    let driverInformation = await getDriverByEmail(data.email);
+                    console.log(driverInformation);
+                    resolve(driverInformation);
+
+                });
+
+            });
+
+        });
+
+
+    } catch (err) {
+        return err;
+    }
+}
+async function insertBankDetails(data) {
+    try {
+        return new Promise(async (resolve, reject) => {
+            let bankAc = {};
+            if (data.upi_id) {
+                bankAc.upi_id = data.upi_id;
+            }
+            if (data.account_holder) {
+                bankAc.account_holder = data.account_holder;
+            }
+            if (data.ifsc_code) {
+                bankAc.ifsc_code = data.ifsc_code;
+            }
+            if (data.paytm_number) {
+                bankAc.paytm_number = data.paytm_number;
+            }
+            await BankDetails.create(bankAc, async function (err, bankInfo) {
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+
+                await Driver.updateOne({ email_id: data.email }, { bank_ac_id: ObjectId(bankInfo.id) }, async function (err, newDriver) {
+                    if (err) {
+                        console.log(err);
+                    }
+
+
+                    console.log("1 record updated");
+                    let driverInformation = await getDriverByEmail(data.email);
+
+                    resolve(driverInformation);
+                });
+
+            });
+        });
     } catch (err) {
         return err;
     }

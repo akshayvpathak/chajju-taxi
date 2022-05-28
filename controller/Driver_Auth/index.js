@@ -170,6 +170,25 @@ exports.verifyForgotPassword = passport.authenticate('password_strategy', {
     session: false,
 });
 
+exports.verifyDriverGoogleLogin = (driverData) => {
+    let token;
+    if (driverData && driverData.google_id != '') {
+        token = exports.getToken({ _id: driverData._id });
+        return token;
+    }
+    else {
+        return undefined;
+    }
+
+
+}
+exports.verifyDriverwithManualMobileLogin = (driverData) => {
+    let token;
+
+    token = exports.getToken({ _id: driverData._id });
+    return token;
+
+}
 exports.verifyUserRegistration = (req, res) => {
     passport.authenticate('local')(req, res, () => {
         res.statusCode = 200;

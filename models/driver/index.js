@@ -48,9 +48,15 @@ const driverSchema = new Schema({
         type: String,
 
     },
+
+    google_id: {
+        type: String,
+
+    },
+
     bank_ac_id: {
         type: Object,
-
+        ref: 'BankAccountDetails'
     },
     wallet_id: {
         type: Object,

@@ -7,61 +7,50 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const mongoosePaginate = require('mongoose-paginate');
 
 const riderSchema = new Schema({
-    start_location_id: {
-        type: Object,
-        default: '',
+    name: {
+        type: String
     },
-    end_location_id: {
-        type: String,
-        default: '',
-    },
-    type: {
+    email_id: {
         type: String,
         required: true,
     },
-    notes: {
-        type: String,
-        default: '',
+    phone: {
+        type: String
     },
-    driver_id: {
-        type: Object,
+    city: {
+        type: String
+    },
+    country: {
+        type: String,
 
     },
-    taxi_id: {
+    location_id: {
         type: Object,
+        ref: 'Location'
 
     },
-    start_time: {
-        type: Date,
-        default: Date.now
-    },
-    end_time: {
-        type: Date,
-        default: Date.now
-    },
-    notes: {
-        type: String,
-        default: '',
+    reviews: {
+        type: String
     },
     status: {
+        type: String
+    },
+    image: {
         type: String,
         default: '',
     },
-    payment_id: {
-        type: Object,
-
+    gender: {
+        type: String,
+        default: '',
     },
-    driver_rating: {
-        type: Number,
-
-    },
-    rider_id: {
-        type: Object,
+    DOB: {
+        type: Date,
 
     },
 });
 
 // passport local mongoose plugin
+riderSchema.plugin(passportLocalMongoose, { usernameField: 'email_id' });
 riderSchema.plugin(mongoosePaginate);
 
 const Rider = mongoose.model('Rider', riderSchema);

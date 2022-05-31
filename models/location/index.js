@@ -9,15 +9,14 @@ const mongoosePaginate = require('mongoose-paginate');
 const locationSchema = new Schema({
     latitude: {
         type: String,
-        default: '',
+        required: true,
     },
     longitude: {
         type: String,
-        default: '',
+        required: true,
     },
     address: {
-        type: String,
-        required: true,
+        type: String
     },
     zip_code: {
         type: String,

@@ -416,6 +416,9 @@ async function insertBankDetails(data) {
             if (data.paytm_number) {
                 bankAc.paytm_number = data.paytm_number;
             }
+            if (data.account_no) {
+                bankAc.account_number = data.account_no;
+            }
             await BankDetails.create(bankAc, async function (err, bankInfo) {
                 if (err) {
                     console.log(err);
